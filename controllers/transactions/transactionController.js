@@ -76,31 +76,10 @@ class TransactionController {
       res.status(500).json(err);
     }
   }
-  async getDayStatistic(req, res, next) {
-    const date = new Date();
-    const {
-      day = date.getDate(),
-      month = date.getMonth() + 1,
-      year = date.getFullYear(),
-    } = req.query;
-    try {
-      const result = await transactionModel.find({
-        dayCreate: Number(day),
-        monthCreate: Number(month),
-        yearCreate: Number(year),
-      });
-      return res.json(result.reverse());
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  }
 
   async getMonthStatistic(req, res, next) {
     try {
-      // console.log(req.query);
       let { month = new Date().getMonth() + 1, year = new Date().getFullYear() } = req.query;
-      // console.log(month);
-      // console.log(2);
       month = Number(month);
       year = Number(year);
       const totalIncome = await transactionModel.aggregate([
@@ -203,6 +182,8 @@ class TransactionController {
       });
 
       const result = {
+        month: monthList[month - 1].name,
+        year: year,
         totalIncome: totalIncome[0]?.total || 0,
         totalExpense: totalExpense[0]?.total || 0,
         income: { salary: salary, additionalIncome: additionalIncome },
@@ -243,6 +224,10 @@ class TransactionController {
         }
         return prevMonth;
       }
+
+      const allExpense = await transactionModel.find({ transactionType: 'expense' });
+      const allIncome = await transactionModel.find({ transactionType: 'income' });
+
       const currentMonthSum = await transactionModel.aggregate([
         {
           $match: {
@@ -310,7 +295,9 @@ class TransactionController {
 
       const result = {
         type: transactionType,
-        list: {
+        expenseList: allExpense,
+        incomeList: allIncome,
+        summaryList: {
           [monthList[currentMonth - 1].name]: currentMonthSum[0]?.total || 0,
           [monthList[getPrevMonth(1) - 1].name]: month1[0]?.total || 0,
           [monthList[getPrevMonth(2) - 1].name]: month2[0]?.total || 0,
