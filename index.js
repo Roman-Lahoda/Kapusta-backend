@@ -1,7 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import transactionModel from './model/transactionModel.js';
 import router from './routers/transactions/transactionRouters.js';
+import routerUser from './routers/users/authenticationRouters.js';
 
 const PORT = 3000;
 
@@ -9,7 +11,9 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cors());
 app.use('/api', router);
+app.use('/api/users', routerUser);
 
 // app.get ('/api/transactions', (req,res)=>{
 //     res.status (200).json('Сервер работает! Это страница для доступа к транзакциям. ')
@@ -30,7 +34,7 @@ app.use('/api', router);
 
 async function startApp() {
   try {
-    await mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(process.env.URI_DB);
     app.listen(PORT, () => console.log('Server is running on PORT ' + PORT));
   } catch (err) {
     console.log('err : ', err);
