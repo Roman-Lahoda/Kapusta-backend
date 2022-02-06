@@ -22,5 +22,4 @@ router.put('/transactions', TransactionController.update);
 router.delete('/transactions/:id', TransactionController.delete);
 
 
-
 export default router;
