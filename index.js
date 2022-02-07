@@ -5,7 +5,7 @@ import transactionModel from './model/transactionModel.js';
 import router from './routers/transactions/transactionRouters.js';
 import routerUser from './routers/users/authenticationRouters.js';
 
-const PORT = 3000;
+// const PORT = process.env.PORT;
 
 const app = express();
 
@@ -35,7 +35,9 @@ app.use('/api/users', routerUser);
 async function startApp() {
   try {
     await mongoose.connect(process.env.DB_URL);
-    app.listen(PORT, () => console.log('Server is running on PORT ' + PORT));
+    app.listen(process.env.PORT, () =>
+      console.log('Server is running on PORT ' + process.env.PORT),
+    );
   } catch (err) {
     console.log('err : ', err);
   }
