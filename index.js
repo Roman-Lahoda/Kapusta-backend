@@ -34,7 +34,7 @@ app.use('/api/users', routerUser);
 
 async function startApp() {
   try {
-    await mongoose.connect(process.env.URI_DB);
+    await mongoose.connect(process.env.DB_URL);
     app.listen(PORT, () => console.log('Server is running on PORT ' + PORT));
   } catch (err) {
     console.log('err : ', err);

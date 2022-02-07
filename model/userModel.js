@@ -21,10 +21,14 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: 'user',
+  balans: {
+    type: Number,
+    default: null,
   },
+  // owner: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: 'user',
+  // },
 });
 
 userSchema.pre('save', async function (next) {
