@@ -1,6 +1,6 @@
 import transactionModel from '../../model/transactionModel.js';
 
-import { EXPENSE, INCOME, monthList } from '../../lib/constants.js';
+import { EXPENSE, INCOME, monthList, HttpCode } from '../../lib/constants.js';
 
 class TransactionController {
   async create(req, res) {
@@ -16,33 +16,66 @@ class TransactionController {
         monthCreate,
         yearCreate,
       });
-      res.status(201).json(createTransaction);
+      return res.status(HttpCode.CREATED).json({
+        status: 'success',
+        code: HttpCode.CREATED,
+        data: createTransaction,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async getAll(req, res) {
     try {
       const transactionsAll = await transactionModel.find();
-      return res.json(transactionsAll);
+      return res.status(HttpCode.OK).json({
+        status: 'succes',
+        code: HttpCode.OK,
+        data: transactionsAll,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async getOne(req, res) {
     try {
       const { id } = req.params;
-
       if (!id) {
-        res.status(400).json({ message: 'Id не указан' });
+        return res.status(HttpCode.BAD_REQUEST).json({
+          status: 'error',
+          code: HttpCode.BAD_REQUEST,
+          message: "Id is'nt indicated",
+        });
       }
-
       const transactionOne = await transactionModel.findById(id);
-      return res.json(transactionOne);
+      if (!transactionOne) {
+        return res.status(HttpCode.NOT_FOUND).json({
+          status: 'error',
+          code: HttpCode.NOT_FOUND,
+          message: 'Transaction not found',
+        });
+      }
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: transactionOne,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
@@ -50,17 +83,28 @@ class TransactionController {
     try {
       const transaction = req.body;
       if (!transaction._id) {
-        res.status(400).json({ message: 'Id не указан' });
+        return res.status(HttpCode.BAD_REQUEST).json({
+          status: 'error',
+          code: HttpCode.BAD_REQUEST,
+          message: "Id is'nt indicated",
+        });
       }
-
       const updatedTransaction = await transactionModel.findByIdAndUpdate(
         transaction._id,
         transaction,
         { new: true },
       );
-      return res.json(updatedTransaction);
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: updatedTransaction,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
@@ -68,13 +112,32 @@ class TransactionController {
     try {
       const { id } = req.params;
       if (!id) {
-        res.status(400).json({ message: 'Id не указан' });
+        return res.status(HttpCode.BAD_REQUEST).json({
+          status: 'error',
+          code: HttpCode.BAD_REQUEST,
+          message: "Id is'nt indicated",
+        });
       }
 
       const deletedTransaction = await transactionModel.findByIdAndRemove(id);
-      return res.json(deletedTransaction);
+      if (!deletedTransaction) {
+        return res.status(HttpCode.NOT_FOUND).json({
+          status: 'error',
+          code: HttpCode.NOT_FOUND,
+          message: 'Transaction not found',
+        });
+      }
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: deletedTransaction,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
@@ -202,15 +265,24 @@ class TransactionController {
           other: other,
         },
       };
-      return res.json(result);
+      return res.status(HttpCode.OK).json({
+        status: 'succes',
+        code: HttpCode.OK,
+        data: result,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async createExpense(req, res) {
     try {
-      const { sum, category, destination, dateOfTransaction } = req.body;
+      const { sum, category, destination, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
+        req.body;
 
       const createExpenseTransaction = await transactionModel.create({
         transactionType: EXPENSE,
@@ -218,26 +290,51 @@ class TransactionController {
         category,
         destination,
         dateOfTransaction,
+        dayCreate,
+        monthCreate,
+        yearCreate,
       });
-      console.log('req.body : ', req.body);
-      res.status(201).json(createExpenseTransaction);
+      return res.status(HttpCode.CREATED).json({
+        status: 'success',
+        code: HttpCode.CREATED,
+        data: createExpenseTransaction,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async getAllExpenses(req, res) {
     try {
       const allExpenses = await transactionModel.find({ transactionType: EXPENSE });
-      return res.json(allExpenses);
+      return res.status(HttpCode.OK).json({
+        status: 'succes',
+        code: HttpCode.OK,
+        data: allExpenses,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async getSummaryStatistics(req, res, next) {
     try {
       const transactionType = req.query.type;
+      if (!transactionType) {
+        return res.status(HttpCode.BAD_REQUEST).json({
+          status: 'error',
+          code: HttpCode.BAD_REQUEST,
+          message: 'Transaction type in query string is required',
+        });
+      }
       const currentMonth = new Date().getMonth() + 1;
       let year = new Date().getFullYear();
       let prevYear = year;
@@ -254,7 +351,6 @@ class TransactionController {
       }
 
       const listTransaction = await transactionModel.find({ transactionType: transactionType });
-
       const currentMonthSum = await transactionModel.aggregate([
         {
           $match: {
@@ -332,66 +428,115 @@ class TransactionController {
           [monthList[getPrevMonth(5) - 1].name]: month5[0]?.total || 0,
         },
       };
-      return res.json(result);
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: result,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async createIncome(req, res) {
     try {
-      const { sum, category, destination, dateOfTransaction } = req.body;
+      const { sum, category, destination, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
+        req.body;
 
-      const createExpenseTransaction = await transactionModel.create({
+      const createIncomeTransaction = await transactionModel.create({
         transactionType: INCOME,
         sum,
         category,
         destination,
         dateOfTransaction,
+        dayCreate,
+        monthCreate,
+        yearCreate,
       });
-      console.log('req.body : ', req.body);
-      res.status(201).json(createExpenseTransaction);
+      return res.status(HttpCode.CREATED).json({
+        status: 'success',
+        code: HttpCode.CREATED,
+        data: createIncomeTransaction,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   async getAllIncomes(req, res) {
     try {
       const allIncomes = await transactionModel.find({ transactionType: INCOME });
-      return res.json(allIncomes);
+      return res.status(HttpCode.OK).json({
+        status: 'succes',
+        code: HttpCode.OK,
+        data: allIncomes,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 
   /////////////////////--------------------------------------------
   async getSumOfAllIncomes() {
-    const data = await transactionModel.aggregate([
-      { $match: { transactionType: INCOME } },
-      {
-        $group: {
-          _id: 'sumOfAllIncomes',
-          totalSum: { $sum: '$sum' },
+    try {
+      const data = await transactionModel.aggregate([
+        { $match: { transactionType: INCOME } },
+        {
+          $group: {
+            _id: 'sumOfAllIncomes',
+            totalSum: { $sum: '$sum' },
+          },
         },
-      },
-    ]);
-    console.log('data = ', data);
-    return data;
+      ]);
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: data,
+      });
+    } catch (err) {
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    }
   }
 
   async getSumOfAllExpenses() {
-    const data = await transactionModel.aggregate([
-      { $match: { transactionType: EXPENSE } },
-      {
-        $group: {
-          _id: 'sumOfAllExpenses',
-          totalSum: { $sum: '$sum' },
+    try {
+      const data = await transactionModel.aggregate([
+        { $match: { transactionType: EXPENSE } },
+        {
+          $group: {
+            _id: 'sumOfAllExpenses',
+            totalSum: { $sum: '$sum' },
+          },
         },
-      },
-    ]);
-    console.log('data = ', data);
-    return data;
+      ]);
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: data,
+      });
+    } catch (err) {
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    }
   }
   /////////////////////--------------------------------------------
 
@@ -426,9 +571,17 @@ class TransactionController {
       let balance = (await sumOfAllIncomes[0].totalSum) - sumOfAllExpenses[0].totalSum;
 
       console.log('balance = ', balance);
-      return res.status(200).json({ balance: balance });
+      return res.status(HttpCode.CREATED).json({
+        status: 'success',
+        code: HttpCode.CREATED,
+        data: balance,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        status: 'error',
+        code: HttpCode.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     }
   }
 }
