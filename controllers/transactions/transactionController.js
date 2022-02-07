@@ -1,5 +1,6 @@
 import transactionModel from '../../model/transactionModel.js';
-import { monthList } from '../../lib/constants.js';
+
+import { EXPENSE, INCOME, monthList } from '../../lib/constants.js';
 
 class TransactionController {
   async create(req, res) {
@@ -207,6 +208,33 @@ class TransactionController {
     }
   }
 
+  async createExpense(req, res) {
+    try {
+      const { sum, category, destination, dateOfTransaction } = req.body;
+
+      const createExpenseTransaction = await transactionModel.create({
+        transactionType: EXPENSE,
+        sum,
+        category,
+        destination,
+        dateOfTransaction,
+      });
+      console.log('req.body : ', req.body);
+      res.status(201).json(createExpenseTransaction);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }
+
+  async getAllExpenses(req, res) {
+    try {
+      const allExpenses = await transactionModel.find({ transactionType: EXPENSE });
+      return res.json(allExpenses);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }
+
   async getSummaryStatistics(req, res, next) {
     try {
       const transactionType = req.query.type;
@@ -307,6 +335,100 @@ class TransactionController {
         },
       };
       return res.json(result);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }
+
+  async createIncome(req, res) {
+    try {
+      const { sum, category, destination, dateOfTransaction } = req.body;
+
+      const createExpenseTransaction = await transactionModel.create({
+        transactionType: INCOME,
+        sum,
+        category,
+        destination,
+        dateOfTransaction,
+      });
+      console.log('req.body : ', req.body);
+      res.status(201).json(createExpenseTransaction);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }
+
+  async getAllIncomes(req, res) {
+    try {
+      const allIncomes = await transactionModel.find({ transactionType: INCOME });
+      return res.json(allIncomes);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }
+
+  /////////////////////--------------------------------------------
+  async getSumOfAllIncomes() {
+    const data = await transactionModel.aggregate([
+      { $match: { transactionType: INCOME } },
+      {
+        $group: {
+          _id: 'sumOfAllIncomes',
+          totalSum: { $sum: '$sum' },
+        },
+      },
+    ]);
+    console.log('data = ', data);
+    return data;
+  }
+
+  async getSumOfAllExpenses() {
+    const data = await transactionModel.aggregate([
+      { $match: { transactionType: EXPENSE } },
+      {
+        $group: {
+          _id: 'sumOfAllExpenses',
+          totalSum: { $sum: '$sum' },
+        },
+      },
+    ]);
+    console.log('data = ', data);
+    return data;
+  }
+  /////////////////////--------------------------------------------
+
+  async getBalance(req, res) {
+    try {
+      const sumOfAllIncomes = await transactionModel.aggregate([
+        { $match: { transactionType: INCOME } },
+        {
+          $group: {
+            _id: 'sumOfAllIncomes',
+            totalSum: { $sum: '$sum' },
+          },
+        },
+      ]);
+
+      const sumOfAllExpenses = await transactionModel.aggregate([
+        { $match: { transactionType: EXPENSE } },
+        {
+          $group: {
+            _id: 'sumOfAllExpenses',
+            totalSum: { $sum: '$sum' },
+          },
+        },
+      ]);
+
+      // console.log (' sumOfAllIncomes = ', sumOfAllIncomes);
+      // console.log (' sumOfAllIncomes[0].totalSum = ', sumOfAllIncomes[0].totalSum)
+
+      // console.log (' sumOfAllExpenses = ', sumOfAllExpenses)
+      // console.log (' sumOfAllExpenses[0].totalSum = ', sumOfAllExpenses[0].totalSum)
+
+      let balance = (await sumOfAllIncomes[0].totalSum) - sumOfAllExpenses[0].totalSum;
+
+      console.log('balance = ', balance);
+      return res.status(200).json({ balance: balance });
     } catch (err) {
       res.status(500).json(err);
     }
