@@ -253,8 +253,7 @@ class TransactionController {
         return prevMonth;
       }
 
-      const allExpense = await transactionModel.find({ transactionType: 'expense' });
-      const allIncome = await transactionModel.find({ transactionType: 'income' });
+      const listTransaction = await transactionModel.find({ transactionType: transactionType });
 
       const currentMonthSum = await transactionModel.aggregate([
         {
@@ -323,8 +322,7 @@ class TransactionController {
 
       const result = {
         type: transactionType,
-        expenseList: allExpense,
-        incomeList: allIncome,
+        listOfTransactions: listTransaction,
         summaryList: {
           [monthList[currentMonth - 1].name]: currentMonthSum[0]?.total || 0,
           [monthList[getPrevMonth(1) - 1].name]: month1[0]?.total || 0,
