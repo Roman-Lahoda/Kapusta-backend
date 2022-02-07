@@ -2,19 +2,23 @@ import express from 'express';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
 import cors from 'cors';
-// import transactionModel from './model/transactionModel.js';
+import transactionModel from './model/transactionModel.js';
 import router from './routers/transactions/transactionRouters.js';
+import routerUser from './routers/users/authenticationRouters.js';
 import { LIMIT_JSON } from './lib/constants.js';
 import { HttpCode } from './lib/constants.js';
 
-const PORT = 3000;
+
+// const PORT = process.env.PORT;
 
 const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: LIMIT_JSON }));
 
+app.use(cors());
 app.use('/api', router);
+app.use('/api/users', routerUser);
 
 app.use((_req, res) => {
   res
@@ -42,7 +46,9 @@ app.use((_req, res) => {
 async function startApp() {
   try {
     await mongoose.connect(process.env.DB_URL);
-    app.listen(PORT, () => console.log('Server is running on PORT ' + PORT));
+    app.listen(process.env.PORT, () =>
+      console.log('Server is running on PORT ' + process.env.PORT),
+    );
   } catch (err) {
     console.log('err : ', err);
   }
