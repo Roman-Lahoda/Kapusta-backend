@@ -3,8 +3,8 @@ import Joi from 'joi'
 const createTransactionSchema = Joi.object({
     transactionType: Joi.string().valid('income', 'expense').required(),
     sum: Joi.number().min(1).integer().required(),
-    category: Joi.string().valid('transport', 'food', 'health', 'alcohol', 'entertainment', 'housing', 'technics', 'communal', 'sport', 'education', 'other' ).required(),
-    destination: Joi.string().min(2).max(100).required(),
+    category: Joi.string().valid('transport', 'food', 'health', 'alcohol', 'entertainment', 'housing', 'technics', 'communal', 'sport', 'education', 'other', 'salary', 'additionalincome' ).required(),
+    description: Joi.string().min(2).max(300).required(),
     dayCreate: Joi.number().integer().min(1).max(31).required(),
     monthCreate: Joi.number().integer().min(1).max(12).required(),
     yearCreate: Joi.number().integer().min(2018).max(2030).required(),
@@ -13,12 +13,12 @@ const createTransactionSchema = Joi.object({
 const updateTransactionSchema = Joi.object({
     transactionType: Joi.string().valid('income', 'expense').optional(),
     sum: Joi.number().min(1).integer().optional(),
-    category: Joi.string().valid('transport', 'food', 'health', 'alcohol', 'entertainment', 'housing', 'technics', 'communal', 'sport', 'education', 'other' ).optional(),
-    destination: Joi.string().min(2).max(100).optional(),
+    category: Joi.string().valid('transport', 'food', 'health', 'alcohol', 'entertainment', 'housing', 'technics', 'communal', 'sport', 'education', 'other', 'salary', 'additionalincome'  ).optional(),
+    description: Joi.string().min(2).max(300).optional(),
     dayCreate: Joi.number().integer().min(1).max(31).optional(),
     monthCreate: Joi.number().integer().min(1).max(12).optional(),
     yearCreate: Joi.number().integer().min(2018).max(2030).optional(),
-}).or('transactionType', 'sum', 'category', 'destination', 'dayCreate', 'monthCreate', 'yearCreate')
+}).or('transactionType', 'sum', 'category', 'description', 'dayCreate', 'monthCreate', 'yearCreate')
 
 
 export const validateCreateTransaction = async (req, res, next) => {

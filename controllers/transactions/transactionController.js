@@ -5,13 +5,13 @@ import { EXPENSE, INCOME, monthList, HttpCode } from '../../lib/constants.js';
 class TransactionController {
   async create(req, res) {
     try {
-      const { transactionType, sum, category, destination, dayCreate, monthCreate, yearCreate } =
+      const { transactionType, sum, category, description, dayCreate, monthCreate, yearCreate } =
         req.body;
       const createTransaction = await transactionModel.create({
         transactionType,
         sum,
         category,
-        destination,
+        description,
         dayCreate,
         monthCreate,
         yearCreate,
@@ -286,14 +286,14 @@ class TransactionController {
 
   async createExpense(req, res) {
     try {
-      const { sum, category, destination, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
+      const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
         req.body;
 
       const createExpenseTransaction = await transactionModel.create({
         transactionType: EXPENSE,
         sum,
         category,
-        destination,
+        description,
         dateOfTransaction,
         dayCreate,
         monthCreate,
@@ -449,14 +449,14 @@ class TransactionController {
 
   async createIncome(req, res) {
     try {
-      const { sum, category, destination, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
+      const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
         req.body;
 
       const createIncomeTransaction = await transactionModel.create({
         transactionType: INCOME,
         sum,
         category,
-        destination,
+        description,
         dateOfTransaction,
         dayCreate,
         monthCreate,
