@@ -10,7 +10,7 @@ import { HttpCode } from './lib/constants.js';
 
 
 /////////////
-const PORT = process.env.PORT || 5000
+// const PORT = process.env.PORT || 5000
 
 const app = express();
 app.use(helmet());
@@ -31,10 +31,9 @@ app.use((_req, res) => {
 async function startApp() {
   try {
     await mongoose.connect(process.env.DB_URL);
-    // app.listen(process.env.PORT, () =>
-    app.listen(PORT, () =>
-      // console.log('Server is running on PORT ' + process.env.PORT),
-      console.log('Server is running on PORT ' + PORT),
+
+      app.listen(process.env.PORT, () =>
+      console.log('Server is running on PORT ' + process.env.PORT),
     );
   } catch (err) {
     console.log('err : ', err);
