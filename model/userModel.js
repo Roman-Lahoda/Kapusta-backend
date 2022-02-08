@@ -4,10 +4,10 @@ import bcryptjs from 'bcryptjs';
 const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
-  name: {
-    type: String,
-    default: 'Guest',
-  },
+  // name: {
+  //   type: String,
+  //   default: 'Guest',
+  // },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -38,6 +38,10 @@ userSchema.pre('save', async function (next) {
   }
   next();
 });
+
+userSchema.methods.isValidPassword = async function (password) {
+  return await bcryptjs.compare(password, this.password);
+};
 
 const UserModel = model('user', userSchema);
 

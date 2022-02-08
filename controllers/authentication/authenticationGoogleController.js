@@ -1,12 +1,12 @@
 import queryString from 'query-string';
 import axios from 'axios';
-import URL from 'url';
+// import URL from 'url';
 // import { query } from 'express';
 
 const googleAuth = async (req, res) => {
   const stringifiedParams = queryString.stringify({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: `${process.env.BASE_URL}/auth/google_redirect`,
+    redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
     scope: [
       'https://www.googleapis.com/auth/userinfo.email',
       'https://www.googleapis.com/auth/userinfo.profile',
@@ -32,7 +32,7 @@ const googleRedirect = async (req, res) => {
     data: {
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${process.env.BASE_URL}/auth/google_redirect`,
+      redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
       grant_type: 'authorisation_code',
       code,
     },
@@ -48,12 +48,16 @@ const googleRedirect = async (req, res) => {
   /*
    * Логика поиска юзера в нашей базе  по email
    */
-  // userData.data.email
+  // по userData.data.email мы може обратиться к email и:
+  // ...если юзера в базе данных нет, то мы его регистрируем
+  // ...если юзер есть, то даем ему токен и пускаем в базу данных
   // ...
   // ...
-  // ...
-
-  return res.redirect(`${process.env.FRONTEND_URL}?email=${userData.data.email}`);
+  // в query параметрах мы указываем токен
+  // return res.redirect(`${process.env.FRONTEND_URL}?email=${userData.data.email}`);
+  return res.redirect(
+    `${process.env.FRONTEND_URL}/google-redirect/?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+  );
 };
 
 export default { googleAuth, googleRedirect };
