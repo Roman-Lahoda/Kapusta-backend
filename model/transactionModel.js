@@ -18,7 +18,7 @@ const transactionModel = new mongoose.Schema(
       required: true,
     },
 
-    destination: {
+    description: {
       type: String,
       required: true,
     },

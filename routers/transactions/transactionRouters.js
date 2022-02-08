@@ -1,6 +1,7 @@
 import Router from 'express';
 import transactionModel from '../../model/transactionModel.js';
 import TransactionController from '../../controllers/transactions/transactionController.js';
+import { validateCreateTransaction, validateUpdateTransaction } from '../../middlewares/validateTransaction.js'
 
 const router = new Router();
 
@@ -15,9 +16,9 @@ router.get('/transactions/income', TransactionController.getAllIncomes);
 router.post('/transactions/income', TransactionController.createIncome);
 
 
-router.post('/transactions', TransactionController.create);
+router.post('/transactions', validateCreateTransaction, TransactionController.create);
 router.get('/transactions', TransactionController.getAll);
-router.put('/transactions', TransactionController.update);
+router.put('/transactions/:id', validateUpdateTransaction, TransactionController.update);
 router.delete('/transactions/:id', TransactionController.delete);
 router.get('/transactions/month', TransactionController.getMonthStatistic);
 router.get('/transactions/summary', TransactionController.getSummaryStatistics);
