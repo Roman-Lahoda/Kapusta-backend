@@ -79,19 +79,23 @@ class TransactionController {
     }
   }
 
+
   async update(req, res) {
     try {
       const transaction = req.body;
-      if (!transaction._id) {
+      console.log ('req.body ', req.body )
+      const { id } = req.params;
+      if (!id) {
         return res.status(HttpCode.BAD_REQUEST).json({
           status: 'error',
           code: HttpCode.BAD_REQUEST,
           message: "Id is'nt indicated",
         });
       }
+
       const updatedTransaction = await transactionModel.findByIdAndUpdate(
-        transaction._id,
-        transaction,
+        id,
+        {...transaction},
         { new: true },
       );
       return res.status(HttpCode.OK).json({
@@ -107,6 +111,14 @@ class TransactionController {
       });
     }
   }
+
+
+
+  /////////////////
+
+
+
+
 
   async delete(req, res) {
     try {
