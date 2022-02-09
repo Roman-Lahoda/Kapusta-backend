@@ -1,28 +1,50 @@
 import Router from 'express';
-import transactionModel from '../../model/transactionModel.js';
+// import transactionModel from '../../model/transactionModel.js';
+import guard from '../../middlewares/guard.js';
 import TransactionController from '../../controllers/transactions/transactionController.js';
-import { validateCreateTransaction, validateUpdateTransaction } from '../../middlewares/validateTransaction.js'
+import {
+  validateCreateTransaction,
+  validateUpdateTransaction,
+} from '../../middlewares/validateTransaction.js';
 
 const router = new Router();
 
 //Чтобы роутинг работал без ошибок эти маршруты должны быть раньше/выше в коде
 
-router.get('/transactions/balance', TransactionController.getBalance);
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.get('/transactions/balance', guard, TransactionController.getBalance);
 
-router.post('/transactions/expense', TransactionController.createExpense);
-router.get('/transactions/expense', TransactionController.getAllExpenses);
+router.post(
+  '/transactions/expense',
+  guard,
+  validateCreateTransaction,
+  TransactionController.createExpense,
+);
 
-router.get('/transactions/income', TransactionController.getAllIncomes);
-router.post('/transactions/income', TransactionController.createIncome);
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.get('/transactions/expense', guard, TransactionController.getAllExpenses);
 
+router.post(
+  '/transactions/income',
+  guard,
+  validateCreateTransaction,
+  TransactionController.createIncome,
+);
 
-router.post('/transactions', validateCreateTransaction, TransactionController.create);
-router.get('/transactions', TransactionController.getAll);
-router.put('/transactions/:id', validateUpdateTransaction, TransactionController.update);
-router.delete('/transactions/:id', TransactionController.delete);
-router.get('/transactions/month', TransactionController.getMonthStatistic);
-router.get('/transactions/summary', TransactionController.getSummaryStatistics);
-router.get('/transactions/:id', TransactionController.getOne);
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.get('/transactions/income', guard, TransactionController.getAllIncomes);
 
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.post('/transactions', guard, validateCreateTransaction, TransactionController.create);
+
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.get('/transactions', guard, TransactionController.getAll);
+router.put('/transactions/:id', guard, validateUpdateTransaction, TransactionController.update);
+router.delete('/transactions/:id', guard, TransactionController.delete);
+router.get('/transactions/month', guard, TransactionController.getMonthStatistic);
+router.get('/transactions/summary', guard, TransactionController.getSummaryStatistics);
+
+//возможно не понадобится,согласовать по ТЗ и с фронтов
+router.get('/transactions/:id', guard, TransactionController.getOne);
 
 export default router;

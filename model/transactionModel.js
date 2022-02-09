@@ -1,10 +1,16 @@
 import mongoose from 'mongoose';
+const { Schema, model, SchemaTypes } = mongoose;
+import { categoryOfTransaction, EXPENSE, INCOME } from '../lib/constants.js';
 
-const transactionModel = new mongoose.Schema(
+const transactionModel = new Schema(
   {
     // ПРИМЕТКА: Предполагается два типа транакций -доход и расход ( income, exprnse)
     transactionType: {
       type: String,
+      enum: {
+        values: [EXPENSE, INCOME],
+        message: "Transaction's type is not allowed",
+      },
       required: true,
     },
 
@@ -15,6 +21,10 @@ const transactionModel = new mongoose.Schema(
 
     category: {
       type: String,
+      enum: {
+        values: [...categoryOfTransaction],
+        message: "Transaction's category is not allowed",
+      },
       required: true,
     },
 
@@ -39,15 +49,13 @@ const transactionModel = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
-
-    // ПРИМЕТКА: Это поле будем расскоментировать и добавлять, когда будет создана коллекция 'user' или 'users'
-    // owner: {
-    //   type: SchemaTypes.ObjectId,
-    //   ref: 'user', // или 'users'
-    //   required: true,
-    // }
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: 'user', // или 'users'
+      required: true,
+    },
   },
   { versionKey: false, timestamps: false },
 );
 
-export default mongoose.model('transactions', transactionModel);
+export default model('transactions', transactionModel);

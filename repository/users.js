@@ -17,4 +17,9 @@ const updateToken = async (id, token) => {
   return await UserModel.updateOne({ _id: id }, { token });
 };
 
-export default { findById, findByEmail, create, updateToken };
+const update = async (id, body) => {
+  const user = await UserModel.findOneAndUpdate({ _id: id }, { ...body }, { new: true });
+  return user;
+};
+
+export default { findById, findByEmail, create, updateToken, update };

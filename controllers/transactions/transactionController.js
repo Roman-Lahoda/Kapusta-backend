@@ -1,9 +1,13 @@
 import transactionModel from '../../model/transactionModel.js';
+import mongoose from 'mongoose';
+const { Types } = mongoose;
+import UserModel from '../../model/userModel.js';
 
 import { EXPENSE, INCOME, monthList, HttpCode } from '../../lib/constants.js';
 
 class TransactionController {
   async create(req, res) {
+    const { id: userId } = req.user;
     try {
       const { transactionType, sum, category, description, dayCreate, monthCreate, yearCreate } =
         req.body;
@@ -15,6 +19,7 @@ class TransactionController {
         dayCreate,
         monthCreate,
         yearCreate,
+        owner: userId,
       });
       return res.status(HttpCode.CREATED).json({
         status: 'success',
@@ -31,8 +36,11 @@ class TransactionController {
   }
 
   async getAll(req, res) {
+    const { id: userId } = req.user;
     try {
-      const transactionsAll = await transactionModel.find();
+      const transactionsAll = await transactionModel
+        .find({ owner: userId })
+        .populate({ path: 'owner', select: 'email id balance' });
       return res.status(HttpCode.OK).json({
         status: 'succes',
         code: HttpCode.OK,
@@ -48,8 +56,9 @@ class TransactionController {
   }
 
   async getOne(req, res) {
+    const { id: userId } = req.user;
+    const { id } = req.params;
     try {
-      const { id } = req.params;
       if (!id) {
         return res.status(HttpCode.BAD_REQUEST).json({
           status: 'error',
@@ -57,7 +66,9 @@ class TransactionController {
           message: "Id is'nt indicated",
         });
       }
-      const transactionOne = await transactionModel.findById(id);
+      const transactionOne = await transactionModel
+        .find({ _id: id, owner: userId })
+        .populate({ path: 'owner', select: 'email id balance' });
       if (!transactionOne) {
         return res.status(HttpCode.NOT_FOUND).json({
           status: 'error',
@@ -79,11 +90,10 @@ class TransactionController {
     }
   }
 
-
   async update(req, res) {
+    const { id: userId } = req.user;
     try {
       const transaction = req.body;
-      console.log ('req.body ', req.body )
       const { id } = req.params;
       if (!id) {
         return res.status(HttpCode.BAD_REQUEST).json({
@@ -93,11 +103,9 @@ class TransactionController {
         });
       }
 
-      const updatedTransaction = await transactionModel.findByIdAndUpdate(
-        id,
-        {...transaction},
-        { new: true },
-      );
+      const updatedTransaction = await transactionModel
+        .findOneAndUpdate({ _id: id, owner: userId }, { ...transaction }, { new: true })
+        .populate({ path: 'owner', select: 'email id balance' });
       return res.status(HttpCode.OK).json({
         status: 'success',
         code: HttpCode.OK,
@@ -112,8 +120,8 @@ class TransactionController {
     }
   }
 
-
   async delete(req, res) {
+    const { id: userId } = req.user;
     try {
       const { id } = req.params;
       if (!id) {
@@ -124,7 +132,12 @@ class TransactionController {
         });
       }
 
-      const deletedTransaction = await transactionModel.findByIdAndRemove(id);
+      const deletedTransaction = await transactionModel
+        .findOneAndRemove({
+          _id: id,
+          owner: userId,
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
       if (!deletedTransaction) {
         return res.status(HttpCode.NOT_FOUND).json({
           status: 'error',
@@ -147,6 +160,7 @@ class TransactionController {
   }
 
   async getMonthStatistic(req, res, next) {
+    const { id: userId } = req.user;
     try {
       let { month = new Date().getMonth() + 1, year = new Date().getFullYear() } = req.query;
       month = Number(month);
@@ -154,6 +168,7 @@ class TransactionController {
       const totalIncome = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: 'income',
             monthCreate: month,
             yearCreate: year,
@@ -164,6 +179,7 @@ class TransactionController {
       const totalExpense = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: 'expense',
             monthCreate: month,
             yearCreate: year,
@@ -171,87 +187,126 @@ class TransactionController {
         },
         { $group: { _id: 'totalExpense', total: { $sum: '$sum' } } },
       ]);
-      const salary = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'income',
-        category: 'salary',
-      });
-      const additionalIncome = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'income',
-        category: 'additionalIncome',
-      });
-      const products = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'products',
-      });
-      const alcohol = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'alcohol',
-      });
-      const entertainment = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'entertainment',
-      });
-      const health = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'health',
-      });
-      const transport = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'transport',
-      });
-      const housing = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'housing',
-      });
-      const technics = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'technics',
-      });
-      const communal = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'communal',
-      });
-      const sport = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'sport',
-      });
-      const education = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'education',
-      });
-      const other = await transactionModel.find({
-        monthCreate: month,
-        yearCreate: year,
-        transactionType: 'expense',
-        category: 'other',
-      });
+      const salary = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'income',
+          category: 'salary',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const additionalIncome = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'income',
+          category: 'additionalIncome',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const products = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'products',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const alcohol = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'alcohol',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const entertainment = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'entertainment',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const health = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'health',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const transport = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'transport',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const housing = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'housing',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const technics = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'technics',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const communal = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'communal',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const sport = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'sport',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const education = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'education',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
+      const other = await transactionModel
+        .find({
+          owner: userId,
+          monthCreate: month,
+          yearCreate: year,
+          transactionType: 'expense',
+          category: 'other',
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
 
       const result = {
-        month: monthList[month - 1].name,
+        month: monthList[month - 1].id,
         year: year,
         totalIncome: totalIncome[0]?.total || 0,
         totalExpense: totalExpense[0]?.total || 0,
@@ -285,6 +340,7 @@ class TransactionController {
   }
 
   async createExpense(req, res) {
+    const { id: userId } = req.user;
     try {
       const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
         req.body;
@@ -298,7 +354,12 @@ class TransactionController {
         dayCreate,
         monthCreate,
         yearCreate,
+        owner: userId,
       });
+
+      const user = await UserModel.findById(userId);
+      await UserModel.findByIdAndUpdate(userId, { balance: user.balance - sum });
+
       return res.status(HttpCode.CREATED).json({
         status: 'success',
         code: HttpCode.CREATED,
@@ -314,8 +375,11 @@ class TransactionController {
   }
 
   async getAllExpenses(req, res) {
+    const { id: userId } = req.user;
     try {
-      const allExpenses = await transactionModel.find({ transactionType: EXPENSE });
+      const allExpenses = await transactionModel
+        .find({ transactionType: EXPENSE, owner: userId })
+        .populate({ path: 'owner', select: 'email id balance' });
       return res.status(HttpCode.OK).json({
         status: 'succes',
         code: HttpCode.OK,
@@ -331,6 +395,7 @@ class TransactionController {
   }
 
   async getSummaryStatistics(req, res, next) {
+    const { id: userId } = req.user;
     try {
       const transactionType = req.query.type;
       if (!transactionType) {
@@ -355,10 +420,16 @@ class TransactionController {
         return prevMonth;
       }
 
-      const listTransaction = await transactionModel.find({ transactionType: transactionType });
+      const listTransaction = await transactionModel
+        .find({
+          transactionType: transactionType,
+          owner: userId,
+        })
+        .populate({ path: 'owner', select: 'email id balance' });
       const currentMonthSum = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: currentMonth,
             yearCreate: prevYear,
@@ -369,6 +440,7 @@ class TransactionController {
       const month1 = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: getPrevMonth(1),
             yearCreate: prevYear,
@@ -380,6 +452,7 @@ class TransactionController {
       const month2 = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: getPrevMonth(2),
             yearCreate: prevYear,
@@ -391,6 +464,7 @@ class TransactionController {
       const month3 = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: getPrevMonth(3),
             yearCreate: prevYear,
@@ -402,6 +476,7 @@ class TransactionController {
       const month4 = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: getPrevMonth(4),
             yearCreate: prevYear,
@@ -413,6 +488,7 @@ class TransactionController {
       const month5 = await transactionModel.aggregate([
         {
           $match: {
+            owner: Types.ObjectId(userId),
             transactionType: transactionType,
             monthCreate: getPrevMonth(5),
             yearCreate: prevYear,
@@ -448,6 +524,7 @@ class TransactionController {
   }
 
   async createIncome(req, res) {
+    const { id: userId } = req.user;
     try {
       const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
         req.body;
@@ -461,7 +538,12 @@ class TransactionController {
         dayCreate,
         monthCreate,
         yearCreate,
+        owner: userId,
       });
+
+      const user = await UserModel.findById(userId);
+      await UserModel.findByIdAndUpdate(userId, { balance: user.balance + sum });
+
       return res.status(HttpCode.CREATED).json({
         status: 'success',
         code: HttpCode.CREATED,
@@ -477,8 +559,11 @@ class TransactionController {
   }
 
   async getAllIncomes(req, res) {
+    const { id: userId } = req.user;
     try {
-      const allIncomes = await transactionModel.find({ transactionType: INCOME });
+      const allIncomes = await transactionModel
+        .find({ transactionType: INCOME, owner: userId })
+        .populate({ path: 'owner', select: 'email id balance' });
       return res.status(HttpCode.OK).json({
         status: 'succes',
         code: HttpCode.OK,
@@ -493,11 +578,11 @@ class TransactionController {
     }
   }
 
-  /////////////////////--------------------------------------------
   async getSumOfAllIncomes() {
+    const { id: userId } = req.user;
     try {
       const data = await transactionModel.aggregate([
-        { $match: { transactionType: INCOME } },
+        { $match: { transactionType: INCOME, owner: Types.ObjectId(userId) } },
         {
           $group: {
             _id: 'sumOfAllIncomes',
@@ -520,11 +605,13 @@ class TransactionController {
   }
 
   async getSumOfAllExpenses() {
+    const { id: userId } = req.user;
     try {
       const data = await transactionModel.aggregate([
-        { $match: { transactionType: EXPENSE } },
+        { $match: { transactionType: EXPENSE, owner: Types.ObjectId(userId) } },
         {
           $group: {
+            owner: Types.ObjectId(userId),
             _id: 'sumOfAllExpenses',
             totalSum: { $sum: '$sum' },
           },
@@ -546,9 +633,10 @@ class TransactionController {
   /////////////////////--------------------------------------------
 
   async getBalance(req, res) {
+    const { id: userId } = req.user;
     try {
       const sumOfAllIncomes = await transactionModel.aggregate([
-        { $match: { transactionType: INCOME } },
+        { $match: { transactionType: INCOME, owner: Types.ObjectId(userId) } },
         {
           $group: {
             _id: 'sumOfAllIncomes',
@@ -558,7 +646,7 @@ class TransactionController {
       ]);
 
       const sumOfAllExpenses = await transactionModel.aggregate([
-        { $match: { transactionType: EXPENSE } },
+        { $match: { transactionType: EXPENSE, owner: Types.ObjectId(userId) } },
         {
           $group: {
             _id: 'sumOfAllExpenses',
@@ -567,15 +655,8 @@ class TransactionController {
         },
       ]);
 
-      // console.log (' sumOfAllIncomes = ', sumOfAllIncomes);
-      // console.log (' sumOfAllIncomes[0].totalSum = ', sumOfAllIncomes[0].totalSum)
-
-      // console.log (' sumOfAllExpenses = ', sumOfAllExpenses)
-      // console.log (' sumOfAllExpenses[0].totalSum = ', sumOfAllExpenses[0].totalSum)
-
       let balance = (await sumOfAllIncomes[0].totalSum) - sumOfAllExpenses[0].totalSum;
 
-      console.log('balance = ', balance);
       return res.status(HttpCode.CREATED).json({
         status: 'success',
         code: HttpCode.CREATED,
