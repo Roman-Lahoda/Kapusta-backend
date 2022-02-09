@@ -1,8 +1,7 @@
 import Joi from 'joi';
 
 const createTransactionSchema = Joi.object({
-  //TODO удалить опязательное поле transactionType ,потому что будем использовать рауты где transactionType устанавливается автоматичести
-  transactionType: Joi.string().valid('income', 'expense').required(),
+  // transactionType: Joi.string().valid('income', 'expense').optional(),
   sum: Joi.number().min(1).integer().required(),
   category: Joi.string()
     .valid(

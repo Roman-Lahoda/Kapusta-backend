@@ -3,33 +3,33 @@ import bcryptjs from 'bcryptjs';
 
 const { Schema, model } = mongoose;
 
-const userSchema = new Schema({
-  name: {
-    type: String,
-    default: 'Guest',
+const userSchema = new Schema(
+  {
+    name: {
+      type: String,
+      default: 'Guest',
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+    },
+    password: {
+      type: String,
+      // TODO пароль не обязательный
+      // required: [true, 'Password is required'],
+    },
+    token: {
+      type: String,
+      default: null,
+    },
+    balance: {
+      type: Number,
+      default: 0,
+    },
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-  },
-  token: {
-    type: String,
-    default: null,
-  },
-  balans: {
-    type: Number,
-    default: null,
-  },
-  // owner: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: 'user',
-  // },
-});
+  { versionKey: false },
+);
 
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
@@ -39,7 +39,10 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.methods.isValidPassword = async function (password) {
+  return await bcryptjs.compare(password, this.password);
+};
+
 const UserModel = model('user', userSchema);
 
 export default UserModel;
-// export default mongoose.model('user', userSchema);

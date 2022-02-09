@@ -6,9 +6,9 @@ import router from './routers/transactions/transactionRouters.js';
 import routerUser from './routers/users/authenticationRouters.js';
 import { LIMIT_JSON } from './lib/constants.js';
 import { HttpCode } from './lib/constants.js';
-
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json';
+import authRouter from './routers/auth/authenticationGoogleRouters.js';
 
 /////////////
 // const PORT = process.env.PORT || 5000
@@ -22,6 +22,7 @@ app.use(cors());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', router);
 app.use('/api/users', routerUser);
+app.use('/auth', authRouter);
 
 app.use((_req, res) => {
   res
