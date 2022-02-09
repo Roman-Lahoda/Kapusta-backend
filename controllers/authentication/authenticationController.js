@@ -11,8 +11,8 @@ class AuthenticationService {
   }
 
   async create(body) {
-    const { id, name, email, balans, owner } = await users.create(body);
-    return { id, name, email, balans, owner };
+    const { id, name, email, balance } = await users.create(body);
+    return { id, name, email, balance };
   }
 
   async getUser(email, password) {
@@ -25,8 +25,8 @@ class AuthenticationService {
   }
 
   getToken(user) {
-    const { id, email } = user.id;
-    const payload = { id, email };
+    const id = user.id;
+    const payload = { id };
     const token = JWT.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '8h' });
     return token;
   }
@@ -34,11 +34,17 @@ class AuthenticationService {
   async setToken(id, token) {
     await users.updateToken(id, token);
   }
+
+  // async update(body) {
+  //   const { email, password } = body;
+  //   const user = await users.findByEmail(email);
+  //   const isValidPassword = await user?.isValidPassword(password);
+  // }
 }
 
 const authenticationService = new AuthenticationService();
 
-const registration = async (req, res, next) => {
+const registration = async (req, res, _next) => {
   const { email } = req.body;
   const isUserExist = await authenticationService.isUserExist(email);
   if (isUserExist) {
@@ -48,7 +54,7 @@ const registration = async (req, res, next) => {
   }
 
   const userData = await authenticationService.create(req.body);
-  res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.OK, userData });
+  res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.CREATED, userData });
 };
 
 const login = async (req, res, next) => {
@@ -65,6 +71,21 @@ const login = async (req, res, next) => {
   res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.OK, userData: { token } });
 };
 
-const logout = (req, res, next) => {};
+const logout = async (req, res, next) => {
+  await authenticationService.setToken(req.user.id, null);
+  res.status(HttpCode.NO_CONTENT).json({ status: 'success', code: HttpCode.NO_CONTENT });
+};
 
-export { registration, login, logout };
+const update = async (req, res, next) => {
+  const updatedUser = await users.update(req.user.id, req.body);
+  const email = updatedUser.email;
+  const balance = updatedUser.balance;
+  const name = updatedUser.name;
+  return res.status(HttpCode.OK).json({
+    status: 'success',
+    code: HttpCode.OK,
+    userData: { name, email, balance },
+  });
+};
+
+export { registration, login, logout, update };
