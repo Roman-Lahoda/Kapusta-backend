@@ -65,10 +65,12 @@ const login = async (req, res, next) => {
       .status(HttpCode.UNAUTHORIZED)
       .json({ status: 'error', code: HttpCode.UNAUTHORIZED, message: 'Invalid credentials' });
   }
-
+  const { name, balance } = user;
   const token = authenticationService.getToken(user);
   await authenticationService.setToken(user.id, token);
-  res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.OK, userData: { token } });
+  res
+    .status(HttpCode.OK)
+    .json({ status: 'success', code: HttpCode.OK, userData: { token, name, balance, email } });
 };
 
 const logout = async (req, res, next) => {
