@@ -5,6 +5,7 @@ import TransactionController from '../../controllers/transactions/transactionCon
 import {
   validateCreateTransaction,
   validateUpdateTransaction,
+  validateCreateSpecificTransaction
 } from '../../middlewares/validateTransaction.js';
 
 const router = new Router();
@@ -17,7 +18,7 @@ router.get('/transactions/balance', guard, TransactionController.getBalance);
 router.post(
   '/transactions/expense',
   guard,
-  validateCreateTransaction,
+  validateCreateSpecificTransaction,
   TransactionController.createExpense,
 );
 
@@ -27,7 +28,7 @@ router.get('/transactions/expense', guard, TransactionController.getAllExpenses)
 router.post(
   '/transactions/income',
   guard,
-  validateCreateTransaction,
+  validateCreateSpecificTransaction,
   TransactionController.createIncome,
 );
 
