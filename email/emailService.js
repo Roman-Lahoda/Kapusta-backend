@@ -1,20 +1,20 @@
-import mailgen from 'mailgen';
+import Mailgen from 'mailgen';
 
 class EmailService {
   constructor(env, sender) {
     this.sender = sender;
     switch (env) {
       case 'development':
-        this.link = 'http://localhost3000';
+        this.link = 'http://localhost3000/';
         break;
       case 'test':
-        this.link = 'http://localhost5000';
+        this.link = 'http://localhost5000/';
         break;
       case 'production':
-        this.link = 'http://heroku';
+        this.link = 'http://heroku/';
         break;
       default:
-        this.link = 'http://localhost3000';
+        this.link = 'http://localhost3000/';
     }
   }
 

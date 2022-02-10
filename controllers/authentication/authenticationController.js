@@ -47,7 +47,7 @@ class AuthenticationService {
 
 const authenticationService = new AuthenticationService();
 
-const registration = async (req, res, _next) => {
+const registration = async (req, res, next) => {
   try {
     const { email } = req.body;
     const isUserExist = await authenticationService.isUserExist(email);
@@ -73,8 +73,8 @@ const registration = async (req, res, _next) => {
       code: HttpCode.CREATED,
       data: { ...userData, isSendVerify: isSend },
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -113,7 +113,16 @@ const update = async (req, res, next) => {
 
 const verifyUser = async (req, res, next) => {
   const verifyToken = req.params.token;
-  // const userToken =
+  const userToken = users.findByVerifyToken(verifyToken);
+  if (userToken) {
+    await users.updateVerifyToken(userToken.id, true);
+    res
+      .status(HttpCode.OK)
+      .json({ status: 'success', code: HttpCode.OK, data: { message: 'Success' } });
+  }
+  res
+    .status(HttpCode.BAD_REQUEST)
+    .json({ status: 'success', code: HttpCode.BAD_REQUEST, data: { message: 'Invalid token' } });
 };
 
 export { registration, login, logout, update, verifyUser };

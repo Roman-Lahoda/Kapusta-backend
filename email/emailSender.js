@@ -12,7 +12,7 @@ class SenderNodemailer {
       },
     };
     const transporter = nodemailer.createTransport(config);
-    return await transporter.sendMail(...message, process.env.USER_NODEMAILER);
+    return await transporter.sendMail(...message, { message: process.env.USER_NODEMAILER });
   }
 }
 export default SenderNodemailer;
