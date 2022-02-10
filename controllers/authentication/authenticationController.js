@@ -1,5 +1,5 @@
 // import { request } from 'https';
-import { HttpCode } from '../../constants/httpCode.js';
+import { HttpCode } from '../../lib/constants.js';
 import users from '../../repository/users.js';
 import JWT from 'jsonwebtoken';
 // const SECRET_KEY = process.env.JWT_SECRET_KEY;

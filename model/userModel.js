@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { randomUUID } from 'crypto';
 import bcryptjs from 'bcryptjs';
 
 const { Schema, model } = mongoose;
@@ -27,6 +28,8 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    isVerify: { type: Boolean, default: false },
+    verifyTokenEmail: { type: String, default: randomUUID() },
   },
   { versionKey: false },
 );
