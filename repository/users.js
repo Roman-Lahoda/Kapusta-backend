@@ -1,3 +1,4 @@
+// import { verify } from 'crypto';
 import UserModel from '../model/userModel.js';
 
 const findById = async id => {
@@ -7,6 +8,10 @@ const findById = async id => {
 const findByEmail = async email => {
   return await UserModel.findOne({ email });
 };
+
+// const findByVerifyToken = async verifyTokenEmail => {
+//   return await UserModel.findOne({ verifyTokenEmail });
+// };
 
 const create = async body => {
   const user = new UserModel(body);
@@ -22,4 +27,4 @@ const update = async (id, body) => {
   return user;
 };
 
-export default { findById, findByEmail, create, updateToken, update };
+export default { findById, findByEmail, create, updateToken, update /**findByVerifyToken*/ };

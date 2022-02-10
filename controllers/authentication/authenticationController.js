@@ -1,7 +1,10 @@
-// import { request } from 'https';
+import { request } from 'https';
 import { HttpCode } from '../../lib/constants.js';
 import users from '../../repository/users.js';
+// import { findByVerifyToken } from '../../repository/users.js'; /**TODO */
 import JWT from 'jsonwebtoken';
+import EmailService from '../../email/emailService.js';
+import SenderNodemailer from '../../email/emailSender.js';
 // const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 class AuthenticationService {
@@ -11,14 +14,14 @@ class AuthenticationService {
   }
 
   async create(body) {
-    const { id, name, email, balance } = await users.create(body);
-    return { id, name, email, balance };
+    const { id, name, email, balance, verifyTokenEmail } = await users.create(body);
+    return { id, name, email, balance, verifyTokenEmail };
   }
 
   async getUser(email, password) {
     const user = await users.findByEmail(email);
     const isValidPassword = await user?.isValidPassword(password);
-    if (!isValidPassword) {
+    if (!isValidPassword || !user?.isVerify) {
       return null;
     }
     return user;
@@ -45,16 +48,34 @@ class AuthenticationService {
 const authenticationService = new AuthenticationService();
 
 const registration = async (req, res, _next) => {
-  const { email } = req.body;
-  const isUserExist = await authenticationService.isUserExist(email);
-  if (isUserExist) {
-    return res
-      .status(HttpCode.CONFLICT)
-      .json({ status: 'error', code: HttpCode.CONFLICT, message: 'Email is already exist' });
-  }
+  try {
+    const { email } = req.body;
+    const isUserExist = await authenticationService.isUserExist(email);
+    if (isUserExist) {
+      return res
+        .status(HttpCode.CONFLICT)
+        .json({ status: 'error', code: HttpCode.CONFLICT, message: 'Email is already exist' });
+    }
 
-  const userData = await authenticationService.create(req.body);
-  res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.CREATED, userData });
+    const userData = await authenticationService.create(req.body);
+
+    const emailService = new EmailService(process.env.NODE_ENV, new SenderNodemailer());
+
+    const isSend = await emailService.sendVerifyEmail(
+      email,
+      userData.name,
+      userData.verifyTokenEmail,
+    );
+    delete userData.verifyTokenEmail;
+
+    res.status(HttpCode.OK).json({
+      status: 'success',
+      code: HttpCode.CREATED,
+      data: { ...userData, isSendVerify: isSend },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const login = async (req, res, next) => {
@@ -90,4 +111,9 @@ const update = async (req, res, next) => {
   });
 };
 
-export { registration, login, logout, update };
+const verifyUser = async (req, res, next) => {
+  const verifyToken = req.params.token;
+  // const userToken =
+};
+
+export { registration, login, logout, update, verifyUser };
