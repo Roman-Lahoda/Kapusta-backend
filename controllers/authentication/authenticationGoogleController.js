@@ -57,7 +57,7 @@ const googleRedirect = async (req, res) => {
   // console.log('userData.data.email', userData.data.email);
   return res.redirect(
     // `${process.env.FRONTEND_URL}/google-redirect/?accessToken=${accessToken}&refreshToken=${refreshToken}`,
-    `${process.env.FRONTEND_URL}?email=${userData.data.email}`,
+    `${process.env.FRONTEND_URL}?accessToken=${accessToken}`,
   );
 };
 

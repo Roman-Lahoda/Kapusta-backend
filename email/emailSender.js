@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 class SenderNodemailer {
-  async send(message) {
+  async send(msg) {
     const config = {
       host: 'smtp.meta.ua',
       port: 465,
@@ -12,7 +12,7 @@ class SenderNodemailer {
       },
     };
     const transporter = nodemailer.createTransport(config);
-    return await transporter.sendMail(...message, { message: process.env.USER_NODEMAILER });
+    return await transporter.sendMail({ ...msg, from: process.env.USER_NODEMAILER });
   }
 }
 export default SenderNodemailer;
