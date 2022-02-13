@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 // import { randomUUID } from 'crypto';
-import bcryptjs from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 const { Schema, model } = mongoose;
 
@@ -36,14 +36,14 @@ const userSchema = new Schema(
 
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
-    const salt = await bcryptjs.genSalt(6);
-    this.password = await bcryptjs.hash(this.password, salt);
+    // const salt = await bcrypt.genSaltSync(10);
+    this.password = await bcrypt.hash(this.password, bcrypt.genSaltSync(10));
   }
   next();
 });
 
 userSchema.methods.isValidPassword = async function (password) {
-  return await bcryptjs.compare(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 const UserModel = model('user', userSchema);
