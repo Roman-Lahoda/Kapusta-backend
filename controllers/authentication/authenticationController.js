@@ -68,6 +68,8 @@ const login = async (req, res, next) => {
   const { name, balance } = user;
   const token = authenticationService.getToken(user);
   await authenticationService.setToken(user.id, token);
+  // console.log(`${(token, name, balance, email)}`);
+  // console.log('test');
   res
     .status(HttpCode.OK)
     .json({ status: 'success', code: HttpCode.OK, userData: { token, name, balance, email } });

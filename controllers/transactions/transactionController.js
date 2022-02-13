@@ -9,8 +9,16 @@ class TransactionController {
   async create(req, res) {
     const { id: userId } = req.user;
     try {
-      const { transactionType, sum, category, description, dayCreate, monthCreate, yearCreate } =
-        req.body;
+      const {
+        transactionType,
+        sum,
+        category,
+        description,
+        dayCreate,
+        monthCreate,
+        yearCreate,
+        idT,
+      } = req.body;
       const createTransaction = await transactionModel.create({
         transactionType,
         sum,
@@ -20,6 +28,7 @@ class TransactionController {
         monthCreate,
         yearCreate,
         owner: userId,
+        idT,
       });
       return res.status(HttpCode.CREATED).json({
         status: 'success',
@@ -132,9 +141,23 @@ class TransactionController {
         });
       }
 
+      const user = await UserModel.findById(userId);
+      const transaction = await transactionModel.findOne({ idT: id });
+      console.log(transaction);
+      switch (transaction.transactionType) {
+        case 'income':
+          await UserModel.findByIdAndUpdate(userId, { balance: user.balance - transaction.sum });
+          break;
+        case 'expense':
+          await UserModel.findByIdAndUpdate(userId, { balance: user.balance + transaction.sum });
+          break;
+        default:
+          break;
+      }
+
       const deletedTransaction = await transactionModel
         .findOneAndRemove({
-          _id: id,
+          idT: id,
           owner: userId,
         })
         .populate({ path: 'owner', select: 'email id balance' });
@@ -205,13 +228,14 @@ class TransactionController {
           category: 'additionalIncome',
         })
         .populate({ path: 'owner', select: 'email id balance' });
-      const products = await transactionModel
+      //TODO изменить название категории
+      const food = await transactionModel
         .find({
           owner: userId,
           monthCreate: month,
           yearCreate: year,
           transactionType: 'expense',
-          category: 'products',
+          category: 'food',
         })
         .populate({ path: 'owner', select: 'email id balance' });
       const alcohol = await transactionModel
@@ -312,7 +336,7 @@ class TransactionController {
         totalExpense: totalExpense[0]?.total || 0,
         income: { salary: salary, additionalIncome: additionalIncome },
         expense: {
-          products: products,
+          food: food,
           alcohol: alcohol,
           entertainment: entertainment,
           health: health,
@@ -342,11 +366,20 @@ class TransactionController {
   async createExpense(req, res) {
     const { id: userId } = req.user;
     try {
-      const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
-        req.body;
+      const {
+        sum,
+        category,
+        description,
+        dateOfTransaction,
+        dayCreate,
+        monthCreate,
+        yearCreate,
+        transactionType,
+        idT,
+      } = req.body;
 
       const createExpenseTransaction = await transactionModel.create({
-        transactionType: EXPENSE,
+        transactionType,
         sum,
         category,
         description,
@@ -355,6 +388,7 @@ class TransactionController {
         monthCreate,
         yearCreate,
         owner: userId,
+        idT,
       });
 
       const user = await UserModel.findById(userId);
@@ -526,11 +560,20 @@ class TransactionController {
   async createIncome(req, res) {
     const { id: userId } = req.user;
     try {
-      const { sum, category, description, dateOfTransaction, dayCreate, monthCreate, yearCreate } =
-        req.body;
+      const {
+        sum,
+        category,
+        description,
+        dateOfTransaction,
+        dayCreate,
+        monthCreate,
+        yearCreate,
+        transactionType,
+        idT,
+      } = req.body;
 
       const createIncomeTransaction = await transactionModel.create({
-        transactionType: INCOME,
+        transactionType,
         sum,
         category,
         description,
@@ -539,6 +582,7 @@ class TransactionController {
         monthCreate,
         yearCreate,
         owner: userId,
+        idT,
       });
 
       const user = await UserModel.findById(userId);

@@ -54,6 +54,10 @@ const transactionModel = new Schema(
       ref: 'user', // или 'users'
       required: true,
     },
+    idT: {
+      type: String,
+      required: true,
+    },
   },
   { versionKey: false, timestamps: false },
 );
