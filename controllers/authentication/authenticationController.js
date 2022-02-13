@@ -24,6 +24,17 @@ class AuthenticationService {
     return user;
   }
 
+  //////////////////
+  async getUserWithGoogle2(email) {
+    const user = await users.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
+  //////////////
+
   getToken(user) {
     const id = user.id;
     const payload = { id };
@@ -73,6 +84,28 @@ const login = async (req, res, next) => {
     .json({ status: 'success', code: HttpCode.OK, userData: { token, name, balance, email } });
 };
 
+//////////////
+const loginWithGoogle2 = async (email, res, next) => {
+  // const { email, password } = req.body;
+  // const user = await authenticationService.getUser(email, password);
+  const user = await authenticationService.getUserWithGoogle2(email);
+  if (!user) {
+    // return res
+    //   .status(HttpCode.UNAUTHORIZED)
+    //   .json({ status: 'error', code: HttpCode.UNAUTHORIZED, message: 'Invalid credentials' });
+    const userData = await authenticationService.create(email);
+    res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.CREATED, userData });
+  }
+  const { name, balance } = user;
+  const token = authenticationService.getToken(user);
+  await authenticationService.setToken(user.id, token);
+  res
+    .status(HttpCode.OK)
+    .json({ status: 'success', code: HttpCode.OK, userData: { token, name, balance, email } });
+};
+
+//////////////
+
 const logout = async (req, res, next) => {
   await authenticationService.setToken(req.user.id, null);
   res.status(HttpCode.NO_CONTENT).json({ status: 'success', code: HttpCode.NO_CONTENT });
@@ -90,4 +123,4 @@ const update = async (req, res, next) => {
   });
 };
 
-export { registration, login, logout, update };
+export { registration, login, logout, update, loginWithGoogle2, AuthenticationService  };

@@ -10,6 +10,13 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json';
 import authRouter from './routers/auth/authenticationGoogleRouters.js';
 
+
+///////////////
+import path from 'path'
+import routerGoogle2 from './routers/auth2/auth2.router.js'
+
+
+
 /////////////
 // const PORT = process.env.PORT || 5000
 
@@ -18,11 +25,27 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: LIMIT_JSON }));
 
+
 app.use(cors());
+
+////////////
+
+app.use(express.static('public'))
+app.use('/auth2', routerGoogle2);
+///////////
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use('/api', router);
+
 app.use('/api/users', routerUser);
+app.use('/api', router);
 app.use('/auth', authRouter);
+
+
+/////////////////
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+////////////////
 
 app.use((_req, res) => {
   res
