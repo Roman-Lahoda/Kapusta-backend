@@ -21,9 +21,9 @@ import {AuthenticationService} from '../../controllers/authentication/authentica
     response_type: 'code',
     access_type: 'offline',
     prompt: 'consent',
-    })
-
-    return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`);
+    }) 
+    console.log ("Сработала функция googleAuth2  строка 25")
+    return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`)
 }
 
 
@@ -35,12 +35,7 @@ const googleRedirect2 = async (req, res) => {
     const urlObj = new URL(fullUrl);
     const urlParams = queryString.parse(urlObj.search);
 
-
-    if (urlParams.code=== undefined || urlParams.code==='') {
-        console.log (" urlParams.code  is undefined or empty line")
-    } else {
-        const code = urlParams.code;
-    }
+    const code = urlParams.code;
     
     const tokenData = await axios({
       url: `https://oauth2.googleapis.com/token`,
@@ -61,38 +56,16 @@ const googleRedirect2 = async (req, res) => {
       },
     });
 
-    console.log ( 'userData.data : ', userData.data)
+    console.log ("Сработала функция googleRedirect2 строка 66")
 
-    // userData.data.email
-    const email = userData.data.email
+    // return res.redirect(
+    //   `${process.env.FRONTEND_URL}?email=${userData.data.email}`,
+    //   );
+    // return res.status(200).json({
+    //   status: 'success',
+    //   message:'Сработала функция googleRedirect2 строка 73',
+    // });
 
-      // Проверяем есть ли такой имейл в БД юзеров:
-    const findByEmail = async email => {
-      return await UserModel.findOne({email});
-    };
-
-    const user = findByEmail
-    const authenticationService = new AuthenticationService();
-
-    //если юзера по его имейлу нашли, то создаём и возвращаем токен
-  if (user!==null) {
-    const token = authenticationService.getToken(user);
-    await authenticationService.setToken(user.id, token);
-  }
-  // } else {
-  //   //если юзера по его имейлу не нашли, то регистрируем
-    
-  // const userData = await authenticationService.create(req.body);
-  // // res.status(HttpCode.OK).json({ status: 'success', code: HttpCode.CREATED, userData });
-  // }
-
-    // loginWithGoogle2
-
-    return res.redirect(
-        // `${process.env.FRONTEND_URL}/google-redirect/?accessToken=${accessToken}&refreshToken=${refreshToken}`,
-        // `${process.env.FRONTEND_URL}?token=${token}`,
-        `${process.env.FRONTEND_URL}?email=${email}`,
-      );
     };
 
 
