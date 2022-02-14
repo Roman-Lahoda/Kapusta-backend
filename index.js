@@ -42,15 +42,4 @@ async function startApp() {
   }
 }
 
-// mongoose.connection.on ('disconnected', ()=>{
-//   console.log ('Mongoose disconnected from DB.');
-// })
-
-//Этот код срабатывает для отключения от базы данных, когда нижимаем Ctrl+C
-// process.on('SIGINT', async () => {
-//   mongoose.connection.close();
-//   console.log ('Connection DB closed');
-//   process.exit(1)
-// })
-
 startApp();

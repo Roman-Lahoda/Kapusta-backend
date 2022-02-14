@@ -1,7 +1,8 @@
 import queryString from 'query-string';
 import axios from 'axios';
-// import URL from 'url';
-// import { query } from 'express';
+import bcryptjs from 'bcryptjs';
+import JWT from 'jsonwebtoken';
+import UserModel from '../../model/userModel.js';
 
 const googleAuth = async (req, res) => {
   const stringifiedParams = queryString.stringify({
@@ -15,7 +16,6 @@ const googleAuth = async (req, res) => {
     access_type: 'offline',
     prompt: 'consent',
   });
-
   return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`);
 };
 
@@ -39,25 +39,18 @@ const googleRedirect = async (req, res) => {
     url: 'https://www.googleapis.com/oauth2/v2/userinfo',
     method: 'get',
     headers: {
-      Authorisation: `Bearer ${tokenData.data.access_token}`,
+      Authorization: `Bearer ${tokenData.data.access_token}`,
     },
   });
+  // console.log(userData);
 
-  /*
-   * Логика поиска юзера в нашей базе  по email
-   */
-  // по userData.data.email мы може обратиться к email и:
-  // ...если юзера в базе данных нет, то мы его регистрируем
-  // ...если юзер есть, то даем ему токен и пускаем в базу данных
-  // ...
-  // ...
-  // в query параметрах мы указываем токен
-  // return res.redirect(`${process.env.FRONTEND_URL}?email=${userData.data.email}`);
-  // console.log('userData.data.email', userData.data.email);
-  return res.redirect(
-    // `${process.env.FRONTEND_URL}/google-redirect/?accessToken=${accessToken}&refreshToken=${refreshToken}`,
-    `${process.env.FRONTEND_URL}?email=${userData.data.email}`,
-  );
+  const { name, email, id } = userData.data;
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    const user = new UserModel({ name, email, password: id });
+    await user.save();
+  }
+  return res.redirect(`http://localhost:3001/wallet?email=${email}&password=${id}`);
 };
 
 export default { googleAuth, googleRedirect };

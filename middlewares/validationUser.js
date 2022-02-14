@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 const userCreateSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).max(16).optional(),
+  password: Joi.string().min(8).max(30).optional(),
 });
 
 const userUpdateSchema = Joi.object({
