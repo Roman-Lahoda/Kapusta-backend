@@ -45,6 +45,10 @@ app.use('/auth', authRouter);
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.post('/', (req, res) => {
+  res.send('Hello World! (POST)');
+});
 ////////////////
 
 app.use((_req, res) => {
