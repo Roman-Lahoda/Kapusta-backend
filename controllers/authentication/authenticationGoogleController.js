@@ -2,6 +2,7 @@ import queryString from 'query-string';
 import axios from 'axios';
 import UserModel from '../../model/userModel.js';
 // import users from '../../repository/users.js';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs/dist/bcrypt.js';
 // import { AuthenticationService } from '../authentication/authenticationController.js';
 
