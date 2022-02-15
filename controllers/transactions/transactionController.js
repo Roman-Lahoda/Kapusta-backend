@@ -219,13 +219,13 @@ class TransactionController {
           category: 'salary',
         })
         .populate({ path: 'owner', select: 'email id balance' });
-      const additionalIncome = await transactionModel
+      const additionalincome = await transactionModel
         .find({
           owner: userId,
           monthCreate: month,
           yearCreate: year,
           transactionType: 'income',
-          category: 'additionalIncome',
+          category: 'additionalincome',
         })
         .populate({ path: 'owner', select: 'email id balance' });
       //TODO изменить название категории
@@ -334,7 +334,7 @@ class TransactionController {
         year: year,
         totalIncome: totalIncome[0]?.total || 0,
         totalExpense: totalExpense[0]?.total || 0,
-        income: { salary: salary, additionalIncome: additionalIncome },
+        income: { salary: salary, additionalincome: additionalincome },
         expense: {
           food: food,
           alcohol: alcohol,
