@@ -559,7 +559,7 @@ class TransactionController {
         },
         { $group: { _id: 5, total: { $sum: '$sum' } } },
       ]);
-      const monthIncome = await transactionModel.aggregate([
+      const month4Income = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
@@ -595,22 +595,78 @@ class TransactionController {
       const result = {
         // type: transactionType,
         listOfTransactions: listOfAllTransaction,
-        summaryListExpense: {
-          [monthList[currentMonth - 1].name]: currentMonthSumExpense[0]?.total || 0,
-          [monthList[getPrevMonth(1) - 1].name]: month1Expense[0]?.total || 0,
-          [monthList[getPrevMonth(2) - 1].name]: month2Expense[0]?.total || 0,
-          [monthList[getPrevMonth(3) - 1].name]: month3Expense[0]?.total || 0,
-          [monthList[getPrevMonth(4) - 1].name]: month4Expense[0]?.total || 0,
-          [monthList[getPrevMonth(5) - 1].name]: month5Expense[0]?.total || 0,
-        },
-        summaryListIncome: {
-          [monthList[currentMonth - 1].name]: currentMonthSumIncome[0]?.total || 0,
-          [monthList[getPrevMonth(1) - 1].name]: month1Income[0]?.total || 0,
-          [monthList[getPrevMonth(2) - 1].name]: month2Income[0]?.total || 0,
-          [monthList[getPrevMonth(3) - 1].name]: month3Income[0]?.total || 0,
-          [monthList[getPrevMonth(4) - 1].name]: monthIncome[0]?.total || 0,
-          [monthList[getPrevMonth(5) - 1].name]: month5Income[0]?.total || 0,
-        },
+        summaryListExpense: [
+          {
+            id: monthList[currentMonth - 1].id,
+            month: monthList[currentMonth - 1].name,
+            sum: currentMonthSumExpense[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(1) - 1].id,
+            month: monthList[getPrevMonth(1) - 1].name,
+            sum: month1Expense[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(2) - 1].id,
+            month: monthList[getPrevMonth(2) - 1].name,
+            sum: month2Expense[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(3) - 1].id,
+            month: monthList[getPrevMonth(3) - 1].name,
+            sum: month3Expense[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(4) - 1].id,
+            month: monthList[getPrevMonth(4) - 1].name,
+            sum: month4Expense[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(5) - 1].id,
+            month: monthList[getPrevMonth(5) - 1].name,
+            sum: month5Expense[0]?.total || 0,
+          },
+        ],
+        // summaryListIncome: {
+        //   [monthList[currentMonth - 1].name]: currentMonthSumIncome[0]?.total || 0,
+        //   [monthList[getPrevMonth(1) - 1].name]: month1Income[0]?.total || 0,
+        //   [monthList[getPrevMonth(2) - 1].name]: month2Income[0]?.total || 0,
+        //   [monthList[getPrevMonth(3) - 1].name]: month3Income[0]?.total || 0,
+        //   [monthList[getPrevMonth(4) - 1].name]: monthIncome[0]?.total || 0,
+        //   [monthList[getPrevMonth(5) - 1].name]: month5Income[0]?.total || 0,
+        // },
+        summaryListIncome: [
+          {
+            id: monthList[currentMonth - 1].id,
+            month: monthList[currentMonth - 1].name,
+            sum: currentMonthSumIncome[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(1) - 1].id,
+            month: monthList[getPrevMonth(1) - 1].name,
+            sum: month1Income[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(2) - 1].id,
+            month: monthList[getPrevMonth(2) - 1].name,
+            sum: month2Income[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(3) - 1].id,
+            month: monthList[getPrevMonth(3) - 1].name,
+            sum: month3Income[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(4) - 1].id,
+            month: monthList[getPrevMonth(4) - 1].name,
+            sum: month4Income[0]?.total || 0,
+          },
+          {
+            id: monthList[getPrevMonth(5) - 1].id,
+            month: monthList[getPrevMonth(5) - 1].name,
+            sum: month5Income[0]?.total || 0,
+          },
+        ],
       };
       return res.status(HttpCode.OK).json({
         status: 'success',
