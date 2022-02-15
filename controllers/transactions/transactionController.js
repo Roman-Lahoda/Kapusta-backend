@@ -431,14 +431,14 @@ class TransactionController {
   async getSummaryStatistics(req, res, next) {
     const { id: userId } = req.user;
     try {
-      const transactionType = req.query.type;
-      if (!transactionType) {
-        return res.status(HttpCode.BAD_REQUEST).json({
-          status: 'error',
-          code: HttpCode.BAD_REQUEST,
-          message: 'Transaction type in query string is required',
-        });
-      }
+      // const transactionType = req.query.type;
+      // if (!transactionType) {
+      //   return res.status(HttpCode.BAD_REQUEST).json({
+      //     status: 'error',
+      //     code: HttpCode.BAD_REQUEST,
+      //     message: 'Transaction type in query string is required',
+      //   });
+      // }
       const currentMonth = new Date().getMonth() + 1;
       let year = new Date().getFullYear();
       let prevYear = year;
@@ -454,93 +454,162 @@ class TransactionController {
         return prevMonth;
       }
 
-      const listTransaction = await transactionModel
+      const listOfAllTransaction = await transactionModel
         .find({
-          transactionType: transactionType,
+          // transactionType: transactionType,
           owner: userId,
         })
         .populate({ path: 'owner', select: 'email id balance' });
-      const currentMonthSum = await transactionModel.aggregate([
+      const currentMonthSumExpense = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'expense',
             monthCreate: currentMonth,
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 1, total: { $sum: '$sum' } } },
       ]);
-      const month1 = await transactionModel.aggregate([
+      const currentMonthSumIncome = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'income',
+            monthCreate: currentMonth,
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 1, total: { $sum: '$sum' } } },
+      ]);
+      const month1Expense = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'expense',
             monthCreate: getPrevMonth(1),
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 2, total: { $sum: '$sum' } } },
       ]);
-
-      const month2 = await transactionModel.aggregate([
+      const month1Income = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'income',
+            monthCreate: getPrevMonth(1),
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 2, total: { $sum: '$sum' } } },
+      ]);
+      const month2Expense = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'expense',
             monthCreate: getPrevMonth(2),
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 3, total: { $sum: '$sum' } } },
       ]);
-
-      const month3 = await transactionModel.aggregate([
+      const month2Income = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'income',
+            monthCreate: getPrevMonth(2),
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 3, total: { $sum: '$sum' } } },
+      ]);
+      const month3Expense = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'expense',
             monthCreate: getPrevMonth(3),
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 4, total: { $sum: '$sum' } } },
       ]);
-
-      const month4 = await transactionModel.aggregate([
+      const month3Income = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'income',
+            monthCreate: getPrevMonth(3),
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 4, total: { $sum: '$sum' } } },
+      ]);
+      const month4Expense = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'expense',
             monthCreate: getPrevMonth(4),
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 5, total: { $sum: '$sum' } } },
       ]);
-
-      const month5 = await transactionModel.aggregate([
+      const monthIncome = await transactionModel.aggregate([
         {
           $match: {
             owner: Types.ObjectId(userId),
-            transactionType: transactionType,
+            transactionType: 'income',
+            monthCreate: getPrevMonth(4),
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 5, total: { $sum: '$sum' } } },
+      ]);
+      const month5Expense = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'expense',
             monthCreate: getPrevMonth(5),
             yearCreate: prevYear,
           },
         },
         { $group: { _id: 6, total: { $sum: '$sum' } } },
       ]);
-
+      const month5Income = await transactionModel.aggregate([
+        {
+          $match: {
+            owner: Types.ObjectId(userId),
+            transactionType: 'income',
+            monthCreate: getPrevMonth(5),
+            yearCreate: prevYear,
+          },
+        },
+        { $group: { _id: 6, total: { $sum: '$sum' } } },
+      ]);
       const result = {
-        type: transactionType,
-        listOfTransactions: listTransaction,
-        summaryList: {
-          [monthList[currentMonth - 1].name]: currentMonthSum[0]?.total || 0,
-          [monthList[getPrevMonth(1) - 1].name]: month1[0]?.total || 0,
-          [monthList[getPrevMonth(2) - 1].name]: month2[0]?.total || 0,
-          [monthList[getPrevMonth(3) - 1].name]: month3[0]?.total || 0,
-          [monthList[getPrevMonth(4) - 1].name]: month4[0]?.total || 0,
-          [monthList[getPrevMonth(5) - 1].name]: month5[0]?.total || 0,
+        // type: transactionType,
+        listOfTransactions: listOfAllTransaction,
+        summaryListExpense: {
+          [monthList[currentMonth - 1].name]: currentMonthSumExpense[0]?.total || 0,
+          [monthList[getPrevMonth(1) - 1].name]: month1Expense[0]?.total || 0,
+          [monthList[getPrevMonth(2) - 1].name]: month2Expense[0]?.total || 0,
+          [monthList[getPrevMonth(3) - 1].name]: month3Expense[0]?.total || 0,
+          [monthList[getPrevMonth(4) - 1].name]: month4Expense[0]?.total || 0,
+          [monthList[getPrevMonth(5) - 1].name]: month5Expense[0]?.total || 0,
+        },
+        summaryListIncome: {
+          [monthList[currentMonth - 1].name]: currentMonthSumIncome[0]?.total || 0,
+          [monthList[getPrevMonth(1) - 1].name]: month1Income[0]?.total || 0,
+          [monthList[getPrevMonth(2) - 1].name]: month2Income[0]?.total || 0,
+          [monthList[getPrevMonth(3) - 1].name]: month3Income[0]?.total || 0,
+          [monthList[getPrevMonth(4) - 1].name]: monthIncome[0]?.total || 0,
+          [monthList[getPrevMonth(5) - 1].name]: month5Income[0]?.total || 0,
         },
       };
       return res.status(HttpCode.OK).json({
