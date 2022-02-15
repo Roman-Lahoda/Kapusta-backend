@@ -45,7 +45,7 @@ const googleRedirect = async (req, res) => {
     url: 'https://www.googleapis.com/oauth2/v2/userinfo',
     method: 'get',
     headers: {
-      Authorisation: `Bearer ${tokenData.data.access_token}`,
+      Authorization: `Bearer ${tokenData.data.access_token}`,
     },
   });
 
