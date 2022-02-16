@@ -82,7 +82,7 @@ const createSpecificTransactionSchema = Joi.object({
       'education',
       'other',
       'salary',
-      'additionalincome',
+      'additionalIncome',
     )
     .required(),
   description: Joi.string().min(2).max(300).required(),
