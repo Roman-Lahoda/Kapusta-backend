@@ -18,7 +18,7 @@ const createTransactionSchema = Joi.object({
       'education',
       'other',
       'salary',
-      'additionalincome',
+      'additionalIncome',
     )
     .required(),
   description: Joi.string().min(2).max(300).required(),
@@ -45,7 +45,7 @@ const updateTransactionSchema = Joi.object({
       'education',
       'other',
       'salary',
-      'additionalincome',
+      'additionalIncome',
     )
     .optional(),
   description: Joi.string().min(2).max(300).optional(),
@@ -84,7 +84,7 @@ const createSpecificTransactionSchema = Joi.object({
       'salary',
       'additionalIncome',
     )
-    .required(),
+    .optional(),
   description: Joi.string().min(2).max(300).required(),
   dayCreate: Joi.number().integer().min(1).max(31).required(),
   monthCreate: Joi.number().integer().min(1).max(12).required(),
