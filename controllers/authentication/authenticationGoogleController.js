@@ -50,7 +50,8 @@ const googleRedirect = async (req, res) => {
     const user = new UserModel({ name, email, password: id });
     await user.save();
   }
-  return res.redirect(`http://localhost:3001/wallet?email=${email}&password=${id}`);
+
+  return res.redirect(`${process.env.FRONTEND_URL}?email=${email}&password=${id}`);
 };
 
 export default { googleAuth, googleRedirect };
