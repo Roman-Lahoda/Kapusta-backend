@@ -53,5 +53,4 @@ const googleRedirect = async (req, res) => {
 
   return res.redirect(`${process.env.FRONTEND_URL}?email=${email}&password=${id}`);
 };
-
 export default { googleAuth, googleRedirect };
