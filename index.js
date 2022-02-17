@@ -15,7 +15,7 @@ import authRouter from './routers/auth/authenticationGoogleRouters.js';
 
 const app = express();
 app.use(helmet());
-app.use(cors());
+// app.use(cors());
 app.use(express.json({ limit: LIMIT_JSON }));
 
 app.use(cors());
