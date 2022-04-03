@@ -20,6 +20,7 @@ app.use(express.json({ limit: LIMIT_JSON }));
 
 app.use(cors());
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use('/api', router);
 app.use('/api/users', routerUser);
 app.use('/auth', authRouter);
