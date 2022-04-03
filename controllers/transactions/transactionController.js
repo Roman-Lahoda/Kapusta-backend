@@ -17,19 +17,25 @@ class TransactionController {
         dayCreate,
         monthCreate,
         yearCreate,
+        dateOfTransaction,
         idT,
       } = req.body;
       const createTransaction = await transactionModel.create({
         transactionType,
-        sum,
+        sum: Math.round(eval(sum) * 100) / 100,
         category,
         description,
         dayCreate,
         monthCreate,
         yearCreate,
+        dateOfTransaction,
         owner: userId,
         idT,
       });
+      // console.log(
+      //   '🚀 ~ file: transactionController.js ~ line 33 ~ TransactionController ~ create ~ createTransaction',
+      //   createTransaction,
+      // );
       const user = await UserModel.findById(userId);
       if (transactionType === 'income') {
         await UserModel.findByIdAndUpdate(userId, { balance: user.balance + sum });
@@ -94,7 +100,7 @@ class TransactionController {
 
       const user = await UserModel.findById(userId);
       const transaction = await transactionModel.findOne({ idT: id });
-      switch (transaction.transactionType) {
+      switch (transaction?.transactionType) {
         case 'income':
           await UserModel.findByIdAndUpdate(userId, { balance: user.balance - transaction.sum });
           break;
@@ -164,6 +170,7 @@ class TransactionController {
         return result;
       }
       const result = {
+        month: month,
         year: year,
         totalIncome: (await getTotalSum('income'))[0]?.total || 0,
         totalExpense: (await getTotalSum('expense'))[0]?.total || 0,

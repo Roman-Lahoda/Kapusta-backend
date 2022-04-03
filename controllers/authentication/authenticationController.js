@@ -72,7 +72,7 @@ const login = async (req, res, next) => {
   // console.log('test');
   res
     .status(HttpCode.OK)
-    .json({ status: 'success', code: HttpCode.OK, userData: { token, name, balance, email } });
+    .json({ status: 'success', code: HttpCode.OK, userData: { token, balance, email, name } });
 };
 
 const logout = async (req, res, next) => {

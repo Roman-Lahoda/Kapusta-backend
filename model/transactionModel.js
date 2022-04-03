@@ -44,10 +44,12 @@ const transactionModel = new Schema(
       type: Number,
       required: true,
     },
-
     dateOfTransaction: {
-      type: Date,
-      default: Date.now(),
+      // type: Date,
+      // default: Date.now(),
+      //TODO
+      type: String,
+      required: true,
     },
     owner: {
       type: SchemaTypes.ObjectId,

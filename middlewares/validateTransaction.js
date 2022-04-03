@@ -3,7 +3,7 @@ import Joi from 'joi';
 // Эта валидация при POST-запросе для универмального маршрута '/transactions'
 const createTransactionSchema = Joi.object({
   transactionType: Joi.string().valid('income', 'expense').required(),
-  sum: Joi.number().min(1).integer().required(),
+  sum: Joi.number().required(),
   category: Joi.string()
     .valid(
       'transport',
@@ -21,10 +21,12 @@ const createTransactionSchema = Joi.object({
       'additionalIncome',
     )
     .required(),
-  description: Joi.string().min(2).max(300).required(),
+  description: Joi.string().min(1).max(300).required(),
   dayCreate: Joi.number().integer().min(1).max(31).required(),
+  // dayCreate: Joi.string(),
   monthCreate: Joi.number().integer().min(1).max(12).required(),
   yearCreate: Joi.number().integer().min(2018).max(2030).required(),
+  dateOfTransaction: Joi.string().required(),
   idT: Joi.string().required(),
 });
 
@@ -67,6 +69,7 @@ const updateTransactionSchema = Joi.object({
 export const validateCreateTransaction = async (req, res, next) => {
   try {
     const value = await createTransactionSchema.validateAsync(req.body);
+    // console.log(req.body);
   } catch (err) {
     return res.status(400).json({ message: `Field : ${err.message.replace(/"/g, '')}` });
   }
